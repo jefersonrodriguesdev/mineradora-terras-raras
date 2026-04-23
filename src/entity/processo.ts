@@ -6,7 +6,7 @@ export class Processo {
     id?: number;
 
     @Column()
-    nomeEtapa?: string; // Ex: Prospecção, Extração, Refino...
+    nomeEtapa?: string; // Prospecção, Extração, etc.
 
     @Column("text")
     descricaoTecnica?: string;

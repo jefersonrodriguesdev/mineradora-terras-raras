@@ -1,9 +1,9 @@
-import express, { Request, Response } from 'express';
-import { pokemonRotas } from './router/pokemon-router';
-import { PokemonController } from './controller/lote-controller';
-import { PokemonService } from './service/lote-service';
+import express from 'express';
 import { AppDataSource } from './data-source';
-import { Pokemon } from './entity/lote';
+import { loteRotas } from './router/lote-router';
+import { LoteController } from './controller/lote-controller';
+import { LoteService } from './service/lote-service';
+import { Lote } from './entity/lote';
 
 const app = express();
 app.use(express.json());
@@ -11,11 +11,11 @@ app.use(express.json());
 AppDataSource.initialize().then(() => {
     app.use('/uploads', express.static('my-uploads'));
 
-    const pokemonRepository = AppDataSource.getRepository(Pokemon);
-    const pokemonService = new PokemonService(pokemonRepository);
-    const pokemonController = new PokemonController(pokemonService);
+    const loteRepo = AppDataSource.getRepository(Lote);
+    const loteService = new LoteService(loteRepo);
+    const loteController = new LoteController(loteService);
 
-    app.use('/api/pokemons', pokemonRotas(pokemonController));
+    app.use('/api/lotes', loteRotas(loteController));
 
-    app.listen(3000, () => console.log("Poké-API rodando em http://localhost:3000"));
+    app.listen(3000, () => console.log("Mineradora API rodando na porta 3000"));
 });

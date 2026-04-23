@@ -7,16 +7,15 @@ export class Lote {
     id?: number;
 
     @Column()
-    codigoIdentificacao?: string; // Ex: TR-2026-001
+    codigoIdentificacao?: string;
 
     @Column("decimal")
-    teorMineral?: number; // Porcentagem de terras raras
+    teorMineral?: number;
 
     @Column({ nullable: true })
-    laudoImagem?: string; // Foto do mineral ou gráfico de análise (Recurso de Mídia - Conceito A)
+    laudoImagem?: string;
 
     @ManyToMany(() => Processo)
     @JoinTable()
     processosConcluidos?: Processo[];
-}
 }

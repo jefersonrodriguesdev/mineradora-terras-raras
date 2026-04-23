@@ -4,27 +4,32 @@ import { Lote } from "../entity/lote";
 export class LoteService {
     constructor(private repository: Repository<Lote>) {}
 
-    async registrarLote(lote: Lote): Promise<Lote> {
-        if (!lote.codigoIdentificacao || lote.teorMineral! < 0) {
-            throw { id: 400, msg: "Dados técnicos inválidos para o mineral" };
-        }
+    async registrar(lote: Lote): Promise<Lote> {
         return await this.repository.save(lote);
     }
 
-    // Regra de Negócio (Conceito A)
+    async listar(): Promise<Lote[]> {
+        return await this.repository.find({ relations: ["processosConcluidos"] });
+    }
+
+    async atualizarLaudo(id: number, arquivo: string): Promise<Lote> {
+        const lote = await this.repository.findOneBy({ id });
+        if (!lote) throw { id: 404, msg: "Lote não encontrado" };
+        lote.laudoImagem = arquivo;
+        return await this.repository.save(lote);
+    }
+
+    // Regra de Negócio: Não permite Extração sem Licenciamento Ambiental
     async adicionarEtapa(loteId: number, processo: any): Promise<Lote> {
         const lote = await this.repository.findOne({ where: { id: loteId }, relations: ["processosConcluidos"] });
         if (!lote) throw { id: 404, msg: "Lote não localizado" };
 
-        // Validação: Se tentar Extração sem Licenciamento
-        if (processo.nomeEtapa === "Extração") {
+        if (processo.nomeEtapa === "Extração (mineração)") {
             const temLicenca = lote.processosConcluidos?.some(p => p.nomeEtapa === "Licenciamento ambiental");
-            if (!temLicenca) {
-                throw { id: 403, msg: "Violação Regulatória: Extração proibida sem Licenciamento Ambiental concluído." };
-            }
+            if (!temLicenca) throw { id: 403, msg: "Proibido: Extração requer Licenciamento Ambiental prévio." };
         }
 
         lote.processosConcluidos?.push(processo);
         return await this.repository.save(lote);
     }
-}c
+}
